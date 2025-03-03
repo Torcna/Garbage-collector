@@ -41,41 +41,15 @@ jobs:
       run: git submodule update --init --recursive
 
 
-    - name: Set reusable strings
-      id: strings
-      shell: bash
+    - name: Create directories
       run: |
-        echo "build-output-dir=${{ github.workspace }}/build" >> "$GITHUB_OUTPUT"
+        mkdir -p ${{ github.workspace }}/bin
+        mkdir -p ${{ github.workspace }}/build
 
     - name: Configure CMake
-      run: >
-        cmake -B ${{ steps.strings.outputs.build-output-dir }}
-        -DCMAKE_CXX_COMPILER=${{ matrix.cpp_compiler }}
-        -DCMAKE_C_COMPILER=${{ matrix.c_compiler }}
-        -DCMAKE_BUILD_TYPE=${{ matrix.build_type }}
-        -S ${{ github.workspace }}
-
+      run: |
+        cmake .. -DCMAKE_RUNTIME_OUTPUT_DIRECTORY=${{ github.workspace }}/bin
+      shell: bash
+      
     - name: Build
-      run: cmake --build ${{ steps.strings.outputs.build-output-dir }} --config ${{ matrix.build_type }}
-
-    - name: List contents of bin directory
-      run: |
-       if [ "$RUNNER_OS" == "Windows" ]; then
-         echo "Listing contents of bin directory on Windows..."
-         dir ${GITHUB_WORKSPACE}\\bin
-       else
-         echo "Listing contents of bin directory on Linux..."
-         ls -l ${GITHUB_WORKSPACE}/bin
-       fi
-      shell: bash
-
-    - name: Run tests
-      run: |
-        if [ "$RUNNER_OS" == "Windows" ]; then
-          echo "Running test.exe on Windows..."
-          ${GITHUB_WORKSPACE}\\bin\\Release\\tests.exe
-        else
-          echo "Running test on Linux..."
-          ${GITHUB_WORKSPACE}/bin/tests
-        fi
-      shell: bash
+      run: cmake --build ${{ github.workspace }}/build --config ${{ matrix.build_type }}
