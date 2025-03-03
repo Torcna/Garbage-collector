@@ -48,7 +48,8 @@ jobs:
 
     - name: Configure CMake
       run: |
-        cd ${{ github.workspace }}/build
+        mkdir -p build
+        cd build
         cmake .. -DCMAKE_RUNTIME_OUTPUT_DIRECTORY=${{ github.workspace }}/bin
       shell: bash
       
