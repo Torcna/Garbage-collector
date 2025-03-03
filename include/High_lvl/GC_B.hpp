@@ -2,7 +2,7 @@
 #include <cstddef>
 #include <utility>
 
-#include "High_lvl/Mem_Manager.hpp"
+#include "../High_lvl/Mem_manager.hpp"
 
 namespace GC_B {
 
@@ -20,7 +20,6 @@ struct ArrayInfo {
   std::size_t elem_size;
 };
 
-
 static std::vector<ArrayInfo>& getArrayTable() {
   static std::vector<ArrayInfo> table;
   return table;
@@ -36,7 +35,6 @@ std::enable_if_t<std::is_default_constructible_v<T>, T*> gc_new_array(std::size_
   for (std::size_t i = 0; i < count; ++i) {
     void* mem = memManager.allocate(sizeof(T));
     if (!mem) {
-
       for (T* ptr : allocated) {
         memManager.deallocate(ptr, sizeof(T));
       }
@@ -45,11 +43,9 @@ std::enable_if_t<std::is_default_constructible_v<T>, T*> gc_new_array(std::size_
     T* current = new (mem) T(std::forward<Args>(args)...);
     allocated.push_back(current);
 
-
     if (i > 0) {
       T* prev = allocated[i - 1];
       if (reinterpret_cast<std::uintptr_t>(current) != reinterpret_cast<std::uintptr_t>(prev) + sizeof(T)) {
-
         for (T* ptr : allocated) {
           memManager.deallocate(ptr, sizeof(T));
         }
@@ -57,7 +53,6 @@ std::enable_if_t<std::is_default_constructible_v<T>, T*> gc_new_array(std::size_
       }
     }
   }
-
 
   T* first = allocated[0];
   getArrayTable().emplace_back(ArrayInfo{first, count, sizeof(T)});
