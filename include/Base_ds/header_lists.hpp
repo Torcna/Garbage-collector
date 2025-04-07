@@ -1,6 +1,7 @@
+#pragma once
+#include <cassert>
 #include <cstddef>
 #include <iostream>
-#include <cassert>
 #include <set>
 
 class FreeList {
@@ -16,7 +17,6 @@ class FreeList {
 
   bool isEmpty() const;
 
-  // addBlock ןנמסעמ גûחûגאוע deallocate().
   void addBlock(void* ptr);
 
   void dump() const;

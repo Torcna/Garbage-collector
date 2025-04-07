@@ -1,3 +1,4 @@
+#pragma once
 #include <unordered_map>
 #include <vector>
 
@@ -15,4 +16,5 @@ class MemoryManager {
   void* allocate(size_t size);
   void deallocate(void* ptr, size_t size);
   void addChunk(size_t object_size);
+  bool isInMyHeap(void* ptr);
 };

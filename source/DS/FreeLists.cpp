@@ -12,12 +12,15 @@ void* FreeList::allocate() {
 
 void FreeList::deallocate(void* ptr) {
   assert(ptr && "Cannot deallocate a null pointer");
+  if (freeBlocks_.find(ptr) != freeBlocks_.end()) {
+    std::cerr << "Attempting to deallocate a pointer that is already in the free list." << std::endl;
+    return;
+  }
   freeBlocks_.insert(ptr);
 }
 
 bool FreeList::isEmpty() const { return freeBlocks_.empty(); }
 
-// addBlock ןנמסעמ גûחûגאוע deallocate().
 void FreeList::addBlock(void* ptr) { deallocate(ptr); }
 
 void FreeList::dump() const {

@@ -1,14 +1,14 @@
 #pragma once
+#include <cmath>
 #include <cstddef>
 #include <utility>
 
 #include "../High_lvl/Mem_manager.hpp"
 
-namespace GC_B {
-
 extern MemoryManager memManager;
 
-// Функция для создания одного объекта
+namespace memManagerNS {
+
 template <typename T, typename... Args>
 T* gc_new(Args&&... args) {
   void* mem = memManager.allocate(sizeof(T));
@@ -25,39 +25,29 @@ static std::vector<ArrayInfo>& getArrayTable() {
   return table;
 }
 
+inline std::size_t nextPowerOfTwo(std::size_t size) {
+  if (size == 0) return 1;
+  return std::pow(2, std::ceil(std::log2(size)));
+}
+
 template <typename T, typename... Args>
 std::enable_if_t<std::is_default_constructible_v<T>, T*> gc_new_array(std::size_t count, Args&&... args) {
   if (count == 0) return nullptr;
 
-  std::vector<T*> allocated;
-  allocated.reserve(count);
+  std::size_t total_size = sizeof(T) * count;
 
+  std::size_t aligned_size = nextPowerOfTwo(total_size);
+
+  void* mem = memManager.allocate(aligned_size);
+  if (!mem) return nullptr;
+
+  T* array = static_cast<T*>(mem);
   for (std::size_t i = 0; i < count; ++i) {
-    void* mem = memManager.allocate(sizeof(T));
-    if (!mem) {
-      for (T* ptr : allocated) {
-        memManager.deallocate(ptr, sizeof(T));
-      }
-      return nullptr;
-    }
-    T* current = new (mem) T(std::forward<Args>(args)...);
-    allocated.push_back(current);
-
-    if (i > 0) {
-      T* prev = allocated[i - 1];
-      if (reinterpret_cast<std::uintptr_t>(current) != reinterpret_cast<std::uintptr_t>(prev) + sizeof(T)) {
-        for (T* ptr : allocated) {
-          memManager.deallocate(ptr, sizeof(T));
-        }
-        return nullptr;
-      }
-    }
+    new (array + i) T(std::forward<Args>(args)...);
   }
+  getArrayTable().emplace_back(ArrayInfo{array, count, sizeof(T)});
 
-  T* first = allocated[0];
-  getArrayTable().emplace_back(ArrayInfo{first, count, sizeof(T)});
-
-  return first;
+  return array;
 }
 
-}  // namespace GC_B
+}  // namespace memManagerNS

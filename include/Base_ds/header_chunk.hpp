@@ -19,9 +19,7 @@ class Chunk {
   uint8_t* data_;
 
  public:
-
-  explicit Chunk(size_t object_size, size_t chunk_size=4096);
-
+  explicit Chunk(size_t object_size, size_t chunk_size = 4096);
 
   size_t getObjectSize() const;
   size_t getNumObjects() const;
@@ -30,10 +28,12 @@ class Chunk {
   void markObject(size_t index);
   void resetMarks();
 
-
   void* getObject(size_t index);
   uint8_t* getData();
 
   Chunk* getNext() const;
   void setNext(Chunk* next);
+
+  void* getStart() const;
+  size_t getSize() const;
 };
