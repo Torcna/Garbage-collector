@@ -1,6 +1,7 @@
 cmake_minimum_required(VERSION 3.5)
 set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
+set(CMAKE_CXX_COMPILER g++)
 project(GC_B)
 
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_SOURCE_DIR}/bin)
@@ -14,7 +15,8 @@ add_executable(GC_B
     ${SOURCE_FILES}
     ${HEADER_FILES}
 )
-
+find_package(Threads REQUIRED)
+target_link_libraries(GC_B PRIVATE Threads::Threads)
 target_include_directories(GC_B PUBLIC
     "${CMAKE_SOURCE_DIR}/include"
 )
