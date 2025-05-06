@@ -1,10 +1,10 @@
 #pragma once
-
 #include <cstddef>
 #include <cstdint>
 #include <cstring>
 #include <memory>
 
+class MemoryManager;
 class Chunk {
  private:
   struct Header {
@@ -13,13 +13,13 @@ class Chunk {
     Chunk* next_;
   };
 
-  std::unique_ptr<uint8_t[]> memory_;
+  uint8_t* memory_;
   Header* header_;
   uint8_t* mark_bits_;
   uint8_t* data_;
 
  public:
-  explicit Chunk(size_t object_size, size_t chunk_size = 4096);
+  explicit Chunk(MemoryManager* memManager, size_t object_size, size_t chunk_size = 4096);
 
   size_t getObjectSize() const;
   size_t getNumObjects() const;

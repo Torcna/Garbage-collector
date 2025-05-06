@@ -4,7 +4,7 @@
 
 #include "High_lvl/Mem_manager.hpp"
 
-StackScanner::StackScanner(MemoryManager& memManager) : memManager_(memManager) {}
+StackScanner::StackScanner(MemoryManager* memManager) : memManager_(memManager) {}
 
 void* StackScanner::getStackTop() {
   volatile int stackVar = 0;
@@ -28,7 +28,7 @@ void* StackScanner::getStackBottom() {
   return static_cast<char*>(stackAddr) + stackSize;
 }
 
-bool StackScanner::isPointerToHeap(void* ptr) { return memManager_.isInMyHeap(ptr); }
+bool StackScanner::isPointerToHeap(void* ptr) { return memManager_->isInMyHeap(ptr); }
 
 void StackScanner::scanStack() {
   rootSet.clear();

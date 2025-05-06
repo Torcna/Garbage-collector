@@ -10,7 +10,7 @@ class GarbageCollector {
  public:
   GarbageCollector() = default;
 
-  void init(MemoryManager& memManager);
+  void init(MemoryManager* memManager);
 
   void runGarbageCollector();
 

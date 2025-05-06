@@ -1,9 +1,12 @@
-#include <Base_ds/header_chunk.hpp>
 #include <cstddef>
 #include <cstdint>
+#include <iostream>
 #include <memory>
 
-Chunk::Chunk(size_t object_size, size_t chunk_size) {
+#include "Base_ds/header_chunk.hpp"
+#include "High_lvl/GC_B.hpp"
+
+Chunk::Chunk(MemoryManager* memManager, size_t object_size, size_t chunk_size) {
   size_t header_size = sizeof(Header);
   // start from this point
   size_t n = (chunk_size - header_size) / object_size;
@@ -13,16 +16,23 @@ Chunk::Chunk(size_t object_size, size_t chunk_size) {
   }
   size_t num_objects = n;
 
-  memory_ = std::make_unique<uint8_t[]>(chunk_size);
-  header_ = reinterpret_cast<Header*>(memory_.get());
+  memory_ = reinterpret_cast<uint8_t*>(memManager->allocFromArena(chunk_size, 4096));
+  header_ = reinterpret_cast<Header*>(memory_);
   header_->object_size_ = object_size;
   header_->num_objects_ = num_objects;
   header_->next_ = nullptr;
   size_t mark_bits_size = (num_objects + 7) / 8;
-  mark_bits_ = memory_.get() + header_size;
+  mark_bits_ = memory_ + header_size;
   std::memset(mark_bits_, 0, mark_bits_size);
 
   data_ = mark_bits_ + mark_bits_size;
+
+  std::cout << "Chunk layout:\n";
+  std::cout << "  memory_   = " << static_cast<void*>(memory_) << "\n";
+  std::cout << "  header_   = " << static_cast<void*>(header_) << " (size " << header_size << ")\n";
+  std::cout << "  mark_bits_= " << static_cast<void*>(mark_bits_) << " (size " << mark_bits_size << ")\n";
+  std::cout << "  data_     = " << static_cast<void*>(data_) << " (size " << num_objects * object_size << ")\n";
+  std::cout << "  chunk_size= " << chunk_size << "\n";
 }
 
 size_t Chunk::getObjectSize() const { return header_->object_size_; }
@@ -51,7 +61,7 @@ uint8_t* Chunk::getData() { return data_; }
 Chunk* Chunk::getNext() const { return header_->next_; }
 void Chunk::setNext(Chunk* next) { header_->next_ = next; }
 
-void* Chunk::getStart() const { return memory_.get(); }
+void* Chunk::getStart() const { return memory_; }
 size_t Chunk::getSize() const {
   return sizeof(Header) + ((header_->num_objects_ + 7) / 8) + header_->num_objects_ * header_->object_size_;
 }

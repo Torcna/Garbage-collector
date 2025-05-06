@@ -7,7 +7,7 @@
 
 class StackScanner {
  public:
-  explicit StackScanner(MemoryManager& memManager);
+  explicit StackScanner(MemoryManager* memManager);
 
   void* getStackTop();
   void* getStackBottom();
@@ -17,7 +17,7 @@ class StackScanner {
   const std::unordered_set<void*>& getRootSet() const;
 
  private:
-  MemoryManager& memManager_;
+  MemoryManager* memManager_;
   std::unordered_set<void*> rootSet;
 
   bool isPointerToHeap(void* ptr);

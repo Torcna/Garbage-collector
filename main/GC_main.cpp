@@ -9,12 +9,15 @@ struct MyStruct {
 };
 
 int main() {
+  auto* memManager = new MemoryManager(16 * 1024 * 1024);  // Создаем в куче
+
   GC::garbageCollector.init(memManager);
   {
-    MyStruct* obj = memManagerNS::gc_new<MyStruct>(42);
+    auto* obj = memManagerNS::gc_new<MyStruct>(memManager, 42);
     std::cout << "Single object value: " << obj->value << std::endl;
 
-    MyStruct* arr = memManagerNS::gc_new_array<MyStruct>(5, 3);
+    MyStruct* arr = memManagerNS::gc_new_array<MyStruct>(memManager, 5, 3);
+    std::cout << "Array ptr is: " << arr << std::endl;
     for (std::size_t i = 0; i < 5; ++i) {
       std::cout << "arr[" << i << "].value = " << arr[i].value << std::endl;
     }
