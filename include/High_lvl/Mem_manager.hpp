@@ -21,4 +21,5 @@ class MemoryManager {
   void deallocate(void* ptr, size_t size);
   void addChunk(size_t object_size);
   bool isInMyHeap(void* ptr);
+  void sweepUnmarkedObjects();
 };

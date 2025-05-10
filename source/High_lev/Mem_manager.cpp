@@ -57,3 +57,19 @@ void* MemoryManager::allocFromArena(size_t size, size_t align) {
   arenaOffset_ = offset + size;
   return arena_ + offset;
 }
+
+void MemoryManager::sweepUnmarkedObjects() {
+  for (auto& chunk : chunks_) {
+    size_t numObjects = chunk.getNumObjects();
+    size_t objSize = chunk.getObjectSize();
+    uint8_t* data = chunk.getData();
+
+    for (size_t i = 0; i < numObjects; ++i) {
+      if (!chunk.isObjectMarked(i)) {
+        deallocate(data + i * objSize, objSize);
+      }
+    }
+
+    chunk.resetMarks();
+  }
+}

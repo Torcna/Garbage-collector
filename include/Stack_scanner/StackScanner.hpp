@@ -15,6 +15,7 @@ class StackScanner {
   void scanStack();
 
   const std::unordered_set<void*>& getRootSet() const;
+  MemoryManager* getMemoryManager() { return memManager_; }
 
  private:
   MemoryManager* memManager_;

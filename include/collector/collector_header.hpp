@@ -8,14 +8,11 @@ namespace GC {
 
 class GarbageCollector {
  public:
-  GarbageCollector() = default;
-
   void init(MemoryManager* memManager);
-
   void runGarbageCollector();
 
  private:
-  MemoryManager* memManager_ = nullptr;
+  void sweepUnmarkedObjects(MemoryManager* memManager);
   StackScanner* stackScanner_ = nullptr;
 };
 
