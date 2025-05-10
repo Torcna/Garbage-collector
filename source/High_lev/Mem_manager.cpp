@@ -3,10 +3,7 @@
 #include <algorithm>
 #include <cstdlib>
 
-MemoryManager::MemoryManager(size_t size) : arenaSize_(size), arenaOffset_(0) {
-  // Initialize the arena with a default size
-  initArena(size);
-}
+MemoryManager::MemoryManager(size_t size) : arenaSize_(size), arenaOffset_(0) { initArena(size); }
 
 void* MemoryManager::allocate(size_t size) {
   auto it = free_lists_.find(size);
@@ -53,7 +50,15 @@ void* MemoryManager::allocFromArena(size_t size, size_t align) {
   size_t current = reinterpret_cast<size_t>(arena_) + arenaOffset_;
   size_t aligned = (current + align - 1) & ~(align - 1);
   size_t offset = aligned - reinterpret_cast<size_t>(arena_);
-  if (offset + size > arenaSize_) return nullptr;
+  if (offset + size > arenaSize_) {
+    GC::garbageCollector.runGarbageCollector();
+    current = reinterpret_cast<size_t>(arena_) + arenaOffset_;
+    aligned = (current + align - 1) & ~(align - 1);
+    offset = aligned - reinterpret_cast<size_t>(arena_);
+    if (offset + size > arenaSize_) {
+      return nullptr;
+    }
+  }
   arenaOffset_ = offset + size;
   return arena_ + offset;
 }

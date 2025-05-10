@@ -8,9 +8,7 @@
 
 Chunk::Chunk(MemoryManager* memManager, size_t object_size, size_t chunk_size) {
   size_t header_size = sizeof(Header);
-  // start from this point
   size_t n = (chunk_size - header_size) / object_size;
-  // reducing n till it fits the size
   while (header_size + ((n + 7) / 8) + n * object_size > chunk_size && n > 0) {
     n--;
   }
@@ -33,6 +31,8 @@ Chunk::Chunk(MemoryManager* memManager, size_t object_size, size_t chunk_size) {
   std::cout << "  mark_bits_= " << static_cast<void*>(mark_bits_) << " (size " << mark_bits_size << ")\n";
   std::cout << "  data_     = " << static_cast<void*>(data_) << " (size " << num_objects * object_size << ")\n";
   std::cout << "  chunk_size= " << chunk_size << "\n";
+  std::cout << "  num_objects in chunk = " << num_objects << "\n";
+  std::cout << "  object_size in chunk = " << object_size << "\n";
 }
 
 size_t Chunk::getObjectSize() const { return header_->object_size_; }

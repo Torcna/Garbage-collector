@@ -1,4 +1,5 @@
 #include <iostream>
+#include <vector>
 
 #include "High_lvl/GC_B.hpp"
 #include "collector/collector_header.hpp"
@@ -34,19 +35,22 @@ void testf(MemoryManager* memManager) {
   std::cout << "char* arr4 ptr is: " << static_cast<void*>(arr4) << std::endl;
 }
 
-void dummy() {
-  volatile void* x = nullptr;
-  volatile void* y = nullptr;
+void fillChunk(MemoryManager* memManager) {
+  constexpr size_t N = 2000;
+  std::vector<MyStruct*> ptrs;
+  ptrs.reserve(N);
+
+  for (size_t i = 0; i < N; ++i) {
+    auto* obj = memManagerNS::gc_new<MyStruct>(memManager, int(i));
+    ptrs.push_back(obj);
+    std::cout << "Allocated MyStruct at: " << static_cast<void*>(obj) << " value: " << obj->value << std::endl;
+  }
 }
 int main() {
   auto* memManager = new MemoryManager(16 * 1024 * 1024);
 
   GC::garbageCollector.init(memManager);
-  testf(memManager);
-  dummy();
-  dummy();
-  dummy();
-  dummy();
+  fillChunk(memManager);
   GC::garbageCollector.runGarbageCollector();
   return 0;
 }
