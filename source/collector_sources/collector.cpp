@@ -1,5 +1,3 @@
-#include <pthread.h>
-
 #include <cstdint>
 #include <iostream>
 #include <unordered_set>
