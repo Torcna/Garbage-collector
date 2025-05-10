@@ -1,8 +1,12 @@
 #include "Stack_scanner/StackScanner.hpp"
 
-#include <pthread.h>
-
 #include "High_lvl/Mem_manager.hpp"
+
+#ifdef _WIN32
+#include <windows.h>
+#else
+#include <pthread.h>
+#endif
 
 StackScanner::StackScanner(MemoryManager* memManager) : memManager_(memManager) {}
 
@@ -12,11 +16,15 @@ void* StackScanner::getStackTop() {
 }
 
 void* StackScanner::getStackBottom() {
+#ifdef _WIN32
+  ULONG_PTR lowLimit = 0, highLimit = 0;
+  GetCurrentThreadStackLimits(&lowLimit, &highLimit);
+  return (void*)highLimit;
+#else
   pthread_attr_t attr;
   if (pthread_getattr_np(pthread_self(), &attr) != 0) {
     return nullptr;
   }
-
   void* stackAddr = nullptr;
   size_t stackSize = 0;
   if (pthread_attr_getstack(&attr, &stackAddr, &stackSize) != 0) {
@@ -24,8 +32,8 @@ void* StackScanner::getStackBottom() {
     return nullptr;
   }
   pthread_attr_destroy(&attr);
-
   return static_cast<char*>(stackAddr) + stackSize;
+#endif
 }
 
 bool StackScanner::isPointerToHeap(void* ptr) { return memManager_->isInMyHeap(ptr); }

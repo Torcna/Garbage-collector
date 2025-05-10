@@ -22,4 +22,5 @@ class MemoryManager {
   void addChunk(size_t object_size);
   bool isInMyHeap(void* ptr);
   void sweepUnmarkedObjects();
+  ~MemoryManager();
 };

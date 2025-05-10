@@ -3,6 +3,29 @@
 #include <algorithm>
 #include <cstdlib>
 
+#include "collector/collector_header.hpp"
+
+inline void* cross_platform_aligned_alloc(size_t alignment, size_t size) {
+#ifdef _WIN32
+  return _aligned_malloc(size, alignment);
+#else
+  return std::aligned_alloc(alignment, size);
+#endif
+}
+
+inline void cross_platform_aligned_free(void* ptr) {
+#ifdef _WIN32
+  _aligned_free(ptr);
+#else
+  free(ptr);
+#endif
+}
+
+MemoryManager::~MemoryManager() {
+  if (arena_) {
+    cross_platform_aligned_free(arena_);
+  }
+}
 MemoryManager::MemoryManager(size_t size) : arenaSize_(size), arenaOffset_(0) { initArena(size); }
 
 void* MemoryManager::allocate(size_t size) {
@@ -41,7 +64,7 @@ bool MemoryManager::isInMyHeap(void* ptr) {
 }
 
 void MemoryManager::initArena(size_t size) {
-  arena_ = static_cast<uint8_t*>(std::aligned_alloc(4096, size));
+  arena_ = static_cast<uint8_t*>(cross_platform_aligned_alloc(4096, size));
   arenaSize_ = size;
   arenaOffset_ = 0;
 }
