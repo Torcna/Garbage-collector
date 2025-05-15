@@ -11,8 +11,12 @@
 StackScanner::StackScanner(MemoryManager* memManager) : memManager_(memManager) {}
 
 void* StackScanner::getStackTop() {
-  volatile int stackVar = 0;
-  return (void*)&stackVar;
+  void* stackTop = nullptr;
+  {
+    volatile int stackVar = 0;
+    stackTop = (void*)&stackVar;
+  }
+  return stackTop;
 }
 
 void* StackScanner::getStackBottom() {
@@ -46,6 +50,9 @@ void StackScanner::scanStack() {
 
   if (stackTop > stackBottom) {
     for (void** addr = static_cast<void**>(stackTop); addr >= static_cast<void**>(stackBottom); --addr) {
+      if (addr < static_cast<void**>(stackTop) || addr > static_cast<void**>(stackBottom)) {
+        break;
+      }
       void* potentialPtr = *addr;
       if (isPointerToHeap(potentialPtr)) {
         rootSet.insert(potentialPtr);
@@ -53,7 +60,7 @@ void StackScanner::scanStack() {
     }
   } else {
     for (void** addr = static_cast<void**>(stackBottom); addr >= static_cast<void**>(stackTop); --addr) {
-      void* potentialPtr = *addr;
+      auto* potentialPtr = *addr;
       if (isPointerToHeap(potentialPtr)) {
         rootSet.insert(potentialPtr);
       }

@@ -8,7 +8,6 @@ namespace {
 struct ChunkHeader {
   size_t object_size_;
   size_t num_objects_;
-  void* next_;
 };
 
 inline ChunkHeader* getChunkHeader(void* chunk_addr) { return reinterpret_cast<ChunkHeader*>(chunk_addr); }

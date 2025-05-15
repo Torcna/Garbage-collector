@@ -43,7 +43,6 @@ void fillChunk(MemoryManager* memManager) {
   for (size_t i = 0; i < N; ++i) {
     auto* obj = memManagerNS::gc_new<MyStruct>(memManager, int(i));
     ptrs.push_back(obj);
-    std::cout << "Allocated MyStruct at: " << static_cast<void*>(obj) << " value: " << obj->value << std::endl;
   }
 }
 int main() {
